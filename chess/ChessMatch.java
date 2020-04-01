@@ -53,6 +53,9 @@ public class ChessMatch {
 		if(!board.thereIsAPiece(position)) {
 			throw new ChessException("Erro de validação: não existe peça na posição de origem!(metodo validateSourcePosition ChessMatch.class)");
 		}
+		if(!board.piece(position).isThereAnyPossibleMove()) {
+			throw new ChessException("Não existe movimento possiveis para a peça!");
+		}
 	}
 	
 	private Piece makeMove(Position source, Position target) {
