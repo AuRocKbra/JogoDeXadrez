@@ -26,7 +26,7 @@ public class Program {
 				boolean[][]possibleMoves = chessMatch.possibleMoves(source);
 				UI.clearScreen();
 				UI.printBoard(chessMatch.getPieces(), possibleMoves);
-				System.out.print("Para o local:");
+				System.out.print("\nPara o local:");
 				ChessPosition target = UI.readChessPosition(sc);
 				ChessPiece capturedPiece = chessMatch.peformChessMove(source, target);
 				if(capturedPiece != null) {
