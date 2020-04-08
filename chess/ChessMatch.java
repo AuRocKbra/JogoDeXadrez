@@ -1,5 +1,6 @@
 package chess;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class ChessMatch {
 	private boolean check;
 	private boolean checkMate;
 	private ChessPiece enPassantVulnerable;
+	private ChessPiece promotion;
 	
 	public ChessMatch() {
 		board = new Board(8, 8);
@@ -55,6 +57,10 @@ public class ChessMatch {
 	
 	public Color getCurrentPlayer() {
 		return currentPlayer;
+	}
+	
+	public ChessPiece getPromation() {
+		return promotion;
 	}
 	
 	private void placeNewPiece(char column, int row, ChessPiece piece) {
@@ -108,6 +114,15 @@ public class ChessMatch {
 			undoMove(source, target, capturedPiece);
 			throw new ChessException("Movimento não permitido, pois lhe coloca em check!");
 		}
+		
+		promotion =null;
+		if(movedPiece instanceof Pawn) {
+			if((movedPiece.getColor() == Color.WHITE && target.getRow()==0)||(movedPiece.getColor()==Color.BLACK && target.getRow()==7)) {
+				promotion = (ChessPiece)board.piece(target);
+				promotion = replacePromotedPiece("Q");
+			}
+		}
+		
 		check = (testCheck(opponent(currentPlayer)))? true:false;
 		if(testCheckMate(opponent(currentPlayer))) {
 			checkMate=true;
@@ -286,5 +301,34 @@ public class ChessMatch {
 	
 	public ChessPiece getEnPassantVulnerable() {
 		return enPassantVulnerable;
+	}
+	
+	public ChessPiece replacePromotedPiece(String type) {
+		if(promotion ==null) {
+			throw new IllegalStateException("Erro: não há peça para ser promovida");
+		}
+		if(!type.equals("B")&& !type.equals("N") && !type.equals("R") && !type.equals("Q")) {
+			throw new InvalidParameterException("Somente as opções descritas podem ser usadas!");
+		}
+		Position pos = promotion.getChessPosition().toPosition();
+		Piece p = board.removePiece(pos);
+		piecesOnTheBoard.remove(p);
+		ChessPiece newPiece = newPiece(type,promotion.getColor());
+		board.placePiece(newPiece, pos);
+		piecesOnTheBoard.add(newPiece);
+		return newPiece;
+	}
+	
+	public ChessPiece newPiece(String type,Color color) {
+		if(type.equals("Q")) {
+			return new Queen(board, color);
+		}
+		if(type.equals("B")) {
+			return new Bishop(board, color);
+		}
+		if(type.equals("N")) {
+			return new Knight(board, color);
+		}
+		return new Rook(board, color);
 	}
 }
